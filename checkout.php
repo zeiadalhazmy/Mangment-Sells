@@ -3,6 +3,12 @@
 declare(strict_types=1);
 require __DIR__ . '/db.php';
 require __DIR__ . '/lib/Cart.php';
+require __DIR__ . '/vendor/autoload.php';
+use App\Mailer;
+
+$emailCfg = require __DIR__ . '/config/email.php';
+$mailer   = new Mailer($emailCfg);
+
 Cart::boot();
 
 $items  = Cart::items();
