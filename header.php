@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/lib/auth.php';
+send_security_headers();
 $me = auth_current_admin();
 if ($me):
 ?>

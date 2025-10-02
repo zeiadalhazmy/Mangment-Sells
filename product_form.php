@@ -105,4 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // أعد تحميل البيانات بعد الحفظ
             $st = $pdo->prepare("SELECT * FROM products WHERE id=:id");
             $st->execute([':id' => $id]);
-            $product = $st->fetch(PDO::FETCH_ASSOC);
+            $product = $st->fetch(PDO::FETCH_ASSOC);}
+
+        catch(exc){}
+    }}
