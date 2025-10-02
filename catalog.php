@@ -11,6 +11,8 @@ $query      = isset($_GET['q']) ? trim($_GET['q']) : null;
 $page       = max(1, ($_GET['page'] ?? 1));
 $perPage    = 8;
 
+
+
 // بيانات
 $cats   = db_categories($db);
 $total  = db_products_count($db, $categoryId, $query);

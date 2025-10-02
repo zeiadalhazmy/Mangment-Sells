@@ -1,0 +1,10 @@
+# منع تنفيذ أي سكربت
+RemoveHandler .php .phtml .php3 .php4 .php5 .phps .cgi .pl .asp .aspx .js
+
+# السماح بخدمة الصور فقط
+<FilesMatch "\.(jpe?g|png|webp|gif)$">
+    Require all granted
+</FilesMatch>
+
+# منع التصفح المباشر
+Options -Indexes
