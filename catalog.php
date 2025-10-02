@@ -1,20 +1,20 @@
 زياد الحزمي, [02/10/2025 05:00 ص]
 <?php
 // catalog.php — صفحة مستقلّة لمهمة SCRUM-88
-require DIR . '/db.php';
-require DIR . '/lib/catalog.php';
-require DIR . '/header.php';
+require __DIR__ . '/db.php';
+require __DIR__ . '/lib/catalog.php';
+require __DIR__ . '/header.php';
 
 // مدخلات
-$categoryId = isset($_GET['category']) ? (int)$_GET['category'] : null;
+$categoryId = isset($_GET['category']) ? ($_GET['category']) : null;
 $query      = isset($_GET['q']) ? trim($_GET['q']) : null;
-$page       = max(1, (int)($_GET['page'] ?? 1));
+$page       = max(1, ($_GET['page'] ?? 1));
 $perPage    = 8;
 
 // بيانات
 $cats   = db_categories($db);
 $total  = db_products_count($db, $categoryId, $query);
-$pages  = max(1, (int)ceil($total / $perPage));
+$pages  = max(1, (ceil($total / $perPage)));
 $page   = min($page, $pages);
 $offset = ($page - 1) * $perPage;
 $items  = db_products_page($db, $categoryId, $query, $perPage, $offset);
@@ -79,18 +79,16 @@ function build_url(array $params): string {
         <strong><?= $total ?></strong> نتيجة
         <?php if ($categoryId): ?> ضمن التصنيف المختار<?php endif; ?>
       </div>
-
-زياد الحزمي, [02/10/2025 05:00 ص]
 <div class="grid">
         <?php foreach ($items as $p): ?>
           <article class="card">
             <img src="<?= htmlspecialchars($p['image'] ?? 'uploads/no-image.png') ?>" alt="">
             <h4><?= htmlspecialchars($p['name']) ?></h4>
-            <div class="price"><?= number_format((float)$p['price'], 2) ?> ر.س</div>
-            <a class="btn" href="cart.php?action=add&id=<?= (int)$p['id'] ?>">أضف للسلة</a>
+            <div class="price"><?= number_format(($p['price']), 2) ?> ر.س</div>
+            <a class="btn" href="cart.php?action=add&id=<?= ($p['id'] )?>">أضف للسلة</a>
           </article>
         <?php endforeach; ?>
-
+<a href="cart.php?action=add&id=<?= $p['id'] ?>">أضف إلى العربة</a>
         <?php if (!$items): ?>
           <p class="panel">لا توجد نتائج مطابقة.</p>
         <?php endif; ?>
@@ -108,4 +106,4 @@ function build_url(array $params): string {
   </div>
 </main>
 
-<?php require DIR . '/footer.php'; ?>
+<?php require __DIR__ . '/footer.php'; ?>
