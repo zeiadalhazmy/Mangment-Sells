@@ -43,6 +43,7 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <button>بحث</button>
     <a href="/product_form.php" class="btn">+ منتج جديد</a>
   </form>
+<img src="storage/uploads/thumbs/<?= htmlspecialchars($p['image']) ?>" alt="" style="width:60px;height:60px;object-fit:cover;border:1px solid #eee">
 
   <table class="table">
     <thead>
