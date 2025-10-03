@@ -1,5 +1,7 @@
 <?php
 require_once __DIR__ . '/lib/auth.php';
+require_once __DIR__.'/lib/logger.php';
+log_info('checkout_started', ['cart_total' => $total]);
 send_security_headers();
 $me = auth_current_admin();
 if ($me):
