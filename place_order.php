@@ -1,9 +1,18 @@
 <?php
+
 declare(strict_types=1);
 require __DIR__ . '/db.php';
 require __DIR__ . '/lib/Cart.php';
 require __DIR__ . '/vendor/autoload.php';
+
 use App\Mailer;
+
+require_once __DIR__ . '/lib/auth_customer.php';
+$customerId = customer_logged_in() ? (int)$_SESSION['customer_id'] : null;
+
+$stmt = $pdo->prepare("INSERT INTO orders (customer_id, total, status, created_at) VALUES (?,?,?, datetime('now'))");
+$stmt->execute([$customerId, $cartTotal, 'placed']);
+
 
 $emailCfg = require __DIR__ . '/config/email.php';
 $mailer   = new Mailer($emailCfg);
@@ -48,7 +57,7 @@ try {
         ':sub'  => $totals['subtotal'],
         ':vat'  => $totals['vat'],
         ':ship' => $totals['shipping'],
-        ':grand'=> $totals['grand'],
+        ':grand' => $totals['grand'],
     ]);
     $orderId = (int)$pdo->lastInsertId();
 
