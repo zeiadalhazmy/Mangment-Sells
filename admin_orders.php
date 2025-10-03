@@ -2,6 +2,7 @@
 require_once __DIR__.'/admin_guard.php';
 require_once __DIR__.'/db.php';
 require_once __DIR__.'/lib/logger.php'; // اختياري إن سبق أن أضفت Logger
+require_once __DIR__.'/lib/order_status.php';
 
 // إنشاء الجداول إن لم تكن موجودة (للتجربة / أول تشغيل)
 $pdo->exec("
@@ -166,5 +167,81 @@ $qs = http_build_query(['status'=>$status,'q'=>$q,'from'=>$from,'to'=>$to]);
     </div>
   <?php endif; ?>
 </div>
+// فلاتر بسيطة
+$status = $_GET['status'] ?? '';
+$q      = $_GET['q']      ?? '';
+
+$sql = "SELECT id, customer_id, total, status, created_at, status_updated_at
+        FROM orders WHERE 1=1 ";
+$p = [];
+
+if ($status !== '') { $sql .= " AND status = ? "; $p[] = $status; }
+if ($q !== '')      { $sql .= " AND (CAST(id AS TEXT) LIKE ? OR CAST(customer_id AS TEXT) LIKE ?) ";
+                      $p[] = "%$q%"; $p[] = "%$q%"; }
+
+$sql .= " ORDER BY created_at DESC LIMIT 100";
+$st = $pdo->prepare($sql);
+$st->execute($p);
+$orders = $st->fetchAll(PDO::FETCH_ASSOC);
+
+include __DIR__.'/header.php';
+?>
+<div class="container">
+  <h2>إدارة الطلبات</h2>
+
+  <form class="filters" method="get" action="/admin_orders.php">
+    <label>الحالة</label>
+    <select name="status">
+      <option value="">الكل</option>
+      <?php foreach (array_keys(allowedTransitions()+['cancelled'=>[],'refunded'=>[]]) as $s): ?>
+        <option value="<?=$s?>" <?=$status===$s?'selected':''?>><?=$s?></option>
+      <?php endforeach; ?>
+    </select>
+
+    <label>بحث</label>
+    <input type="text" name="q" placeholder="رقم الطلب/العميل" value="<?=htmlspecialchars($q)?>">
+    <button type="submit">تحديث</button>
+  </form>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>#</th><th>العميل</th><th>الإجمالي</th><th>الحالة</th><th>أُنشئ</th><th>آخر تحديث</th><th>تغيير الحالة</th><th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <?php foreach ($orders as $o): ?>
+        <tr>
+          <td><?=$o['id']?></td>
+          <td><?=$o['customer_id']?></td>
+          <td><?=number_format((float)$o['total'],2)?></td>
+          <td><?=$o['status']?></td>
+          <td><?=htmlspecialchars($o['created_at'])?></td>
+          <td><?=htmlspecialchars($o['status_updated_at'])?></td>
+          <td>
+            <?php $nexts = allowedTransitions()[$o['status']] ?? []; ?>
+            <?php if ($nexts): ?>
+              <form method="post" action="/admin_order_status_update.php" style="display:flex; gap:.5rem; align-items:center">
+                <input type="hidden" name="order_id" value="<?=$o['id']?>">
+                <select name="to">
+                  <?php foreach ($nexts as $n): ?><option value="<?=$n?>"><?=$n?></option><?php endforeach; ?>
+                </select>
+                <input type="text" name="note" placeholder="ملاحظة (اختياري)" style="width:180px">
+                <button type="submit">تحديث</button>
+              </form>
+            <?php else: ?>
+              <em>لا انتقال متاح</em>
+            <?php endif; ?>
+          </td>
+          <td><a class="btn" href="/admin_order_view.php?id=<?=$o['id']?>">تفاصيل</a></td>
+        </tr>
+      <?php endforeach; ?>
+      <?php if (!$orders): ?>
+        <tr><td colspan="8">لا توجد طلبات.</td></tr>
+      <?php endif; ?>
+    </tbody>
+  </table>
+</div>
+
 
 <?php include __DIR__.'/footer.php'; ?>
