@@ -1,0 +1,8 @@
+.git
+.gitignore
+.devcontainer
+docker
+storage/logs/*
+node_modules
+vendor
+README.md
