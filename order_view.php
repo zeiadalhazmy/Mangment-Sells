@@ -15,6 +15,15 @@ $stmt = $pdo->prepare("SELECT * FROM order_items WHERE order_id=?");
 $stmt->execute([$id]);
 $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
+
+<?php if ($order['status']!=='paid' && $order['status']!=='delivered'): ?>
+  <a href="/payments/create_checkout.php?order_id=<?=$order['id']?>"
+     style="display:inline-block;padding:8px 12px;background:#4c7bd9;color:#fff;border-radius:6px;text-decoration:none">
+     ادفع الآن عبر Stripe
+  </a>
+<?php endif; ?>
+
+
 <?php include __DIR__.'/header.php'; ?>
 <div class="container">
   <h2>تفاصيل الطلب #<?=$order['id']?></h2>
